@@ -6,13 +6,14 @@ import {
   ViewStyle,
   TextStyle,
   ActivityIndicator,
+  View,
 } from 'react-native';
-import { Colors, BorderRadius } from '../utils/theme';
+import { Colors, BorderRadius, NeonShadow } from '../utils/theme';
 
 interface Props {
   label: string;
   onPress: () => void;
-  variant?: 'primary' | 'secondary' | 'outline' | 'danger' | 'yellow';
+  variant?: 'primary' | 'secondary' | 'outline' | 'danger' | 'yellow' | 'teal' | 'rasta';
   style?: ViewStyle;
   textStyle?: TextStyle;
   loading?: boolean;
@@ -30,31 +31,53 @@ export default function NeonButton({
   disabled,
   size = 'md',
 }: Props) {
-  const bgColor =
-    variant === 'primary'
-      ? Colors.neonGreen
-      : variant === 'yellow'
-      ? Colors.electricYellow
-      : variant === 'danger'
-      ? Colors.danger
-      : 'transparent';
-
-  const borderColor =
-    variant === 'outline'
-      ? Colors.neonGreen
-      : variant === 'secondary'
-      ? Colors.borderMuted
-      : 'transparent';
-
-  const textColor =
-    variant === 'primary' || variant === 'yellow'
-      ? Colors.deepForestBlack
-      : variant === 'outline'
-      ? Colors.neonGreen
-      : Colors.textPrimary;
+  const config = {
+    primary: {
+      bg: Colors.neonGreen,
+      text: '#000000',
+      border: Colors.neonGreen,
+      shadow: NeonShadow.green,
+    },
+    yellow: {
+      bg: Colors.electricYellow,
+      text: '#000000',
+      border: Colors.electricYellow,
+      shadow: NeonShadow.yellow,
+    },
+    teal: {
+      bg: Colors.tropicalTeal,
+      text: '#000000',
+      border: Colors.tropicalTeal,
+      shadow: NeonShadow.teal,
+    },
+    danger: {
+      bg: Colors.rastaRed,
+      text: '#ffffff',
+      border: Colors.rastaRed,
+      shadow: NeonShadow.red,
+    },
+    rasta: {
+      bg: 'transparent',
+      text: Colors.neonGreen,
+      border: Colors.borderGreen,
+      shadow: NeonShadow.green,
+    },
+    outline: {
+      bg: 'transparent',
+      text: Colors.neonGreen,
+      border: Colors.borderGreen,
+      shadow: {},
+    },
+    secondary: {
+      bg: Colors.bgCard,
+      text: Colors.textSecondary,
+      border: Colors.borderMuted,
+      shadow: {},
+    },
+  }[variant];
 
   const padding = size === 'sm' ? 10 : size === 'lg' ? 18 : 14;
-  const fontSize = size === 'sm' ? 13 : size === 'lg' ? 17 : 15;
+  const fontSize = size === 'sm' ? 13 : size === 'lg' ? 16 : 15;
 
   return (
     <TouchableOpacity
@@ -64,19 +87,26 @@ export default function NeonButton({
       style={[
         styles.btn,
         {
-          backgroundColor: bgColor,
-          borderColor,
-          borderWidth: variant === 'outline' || variant === 'secondary' ? 1 : 0,
+          backgroundColor: config.bg,
+          borderColor: config.border,
           paddingVertical: padding,
-          opacity: disabled ? 0.4 : 1,
+          opacity: disabled ? 0.35 : 1,
         },
+        !disabled && config.shadow,
         style,
       ]}
     >
+      {variant === 'rasta' && (
+        <View style={styles.rastaTop}>
+          <View style={[styles.rastaStripe, { backgroundColor: Colors.rastaRed }]} />
+          <View style={[styles.rastaStripe, { backgroundColor: Colors.rastaYellow }]} />
+          <View style={[styles.rastaStripe, { backgroundColor: Colors.rastaGreen }]} />
+        </View>
+      )}
       {loading ? (
-        <ActivityIndicator color={textColor} />
+        <ActivityIndicator color={config.text} />
       ) : (
-        <Text style={[styles.label, { color: textColor, fontSize }, textStyle]}>{label}</Text>
+        <Text style={[styles.label, { color: config.text, fontSize }, textStyle]}>{label}</Text>
       )}
     </TouchableOpacity>
   );
@@ -88,9 +118,23 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     paddingHorizontal: 20,
+    borderWidth: 1,
+    overflow: 'hidden',
   },
   label: {
-    fontWeight: '700',
-    letterSpacing: 0.5,
+    fontWeight: '800',
+    letterSpacing: 0.6,
+    textTransform: 'uppercase',
+  },
+  rastaTop: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    height: 3,
+    flexDirection: 'row',
+  },
+  rastaStripe: {
+    flex: 1,
   },
 });

@@ -10,8 +10,10 @@ import {
   Platform,
   StatusBar,
 } from 'react-native';
-import { Colors, BorderRadius, Spacing } from '../../utils/theme';
+import { Colors, BorderRadius, NeonShadow } from '../../utils/theme';
 import NeonButton from '../../components/NeonButton';
+import NeonText from '../../components/NeonText';
+import MascotGuide from '../../components/MascotGuide';
 import { useApp } from '../../context/AppContext';
 
 export default function LoginScreen() {
@@ -26,38 +28,35 @@ export default function LoginScreen() {
 
   const handleSubmit = () => {
     setError('');
-    if (!email || !password) {
-      setError('Please fill in all fields');
-      return;
-    }
-    if (!isLogin && !name) {
-      setError('Please enter your name');
-      return;
-    }
-    if (!isLogin && !agreed) {
-      setError('Please agree to the terms');
-      return;
-    }
+    if (!email || !password) { setError('Please fill in all fields'); return; }
+    if (!isLogin && !name) { setError('Please enter your name'); return; }
+    if (!isLogin && !agreed) { setError('Please agree to the terms'); return; }
     setLoading(true);
-    setTimeout(() => {
-      login(email, name || 'User');
-      setLoading(false);
-    }, 1000);
+    setTimeout(() => { login(email, name || 'User'); setLoading(false); }, 1000);
   };
 
   return (
-    <KeyboardAvoidingView
-      style={styles.container}
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-    >
-      <StatusBar barStyle="light-content" />
+    <KeyboardAvoidingView style={styles.container} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+      <StatusBar barStyle="light-content" backgroundColor="#000" />
+
+      {/* Rasta bar */}
+      <View style={styles.rastaBar}>
+        <View style={[styles.rastaStripe, { backgroundColor: Colors.rastaRed }]} />
+        <View style={[styles.rastaStripe, { backgroundColor: Colors.rastaYellow }]} />
+        <View style={[styles.rastaStripe, { backgroundColor: Colors.rastaGreen }]} />
+      </View>
+
       <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled">
-        {/* Header */}
+
+        {/* Logo / mascot */}
         <View style={styles.header}>
-          <Text style={styles.logo}>
-            <Text style={{ color: Colors.neonGreen }}>Edu</Text>
-            <Text style={{ color: Colors.electricYellow }}>phoria</Text>
-          </Text>
+          <MascotGuide
+            size="lg"
+            animate
+            message={isLogin ? "Welcome back! Ready to learn safely? 🌿" : "Join us. Education, harm reduction, zero judgement. 💚"}
+          />
+          <NeonText size={36} color={Colors.neonGreen} weight="900" style={styles.logoGreen}>Edu</NeonText>
+          <NeonText size={36} color={Colors.electricYellow} weight="900" style={styles.logoYellow}>phoria</NeonText>
           <Text style={styles.tagline}>Education & Harm Reduction</Text>
         </View>
 
@@ -82,38 +81,21 @@ export default function LoginScreen() {
           {!isLogin && (
             <View style={styles.field}>
               <Text style={styles.label}>Full Name</Text>
-              <TextInput
-                style={styles.input}
-                value={name}
-                onChangeText={setName}
-                placeholder="Your name"
-                placeholderTextColor={Colors.textMuted}
-                autoCapitalize="words"
-              />
+              <TextInput style={styles.input} value={name} onChangeText={setName}
+                placeholder="Your name" placeholderTextColor={Colors.textMuted}
+                autoCapitalize="words" />
             </View>
           )}
           <View style={styles.field}>
             <Text style={styles.label}>Email Address</Text>
-            <TextInput
-              style={styles.input}
-              value={email}
-              onChangeText={setEmail}
-              placeholder="your@email.com"
-              placeholderTextColor={Colors.textMuted}
-              keyboardType="email-address"
-              autoCapitalize="none"
-            />
+            <TextInput style={styles.input} value={email} onChangeText={setEmail}
+              placeholder="your@email.com" placeholderTextColor={Colors.textMuted}
+              keyboardType="email-address" autoCapitalize="none" />
           </View>
           <View style={styles.field}>
             <Text style={styles.label}>Password</Text>
-            <TextInput
-              style={styles.input}
-              value={password}
-              onChangeText={setPassword}
-              placeholder="••••••••"
-              placeholderTextColor={Colors.textMuted}
-              secureTextEntry
-            />
+            <TextInput style={styles.input} value={password} onChangeText={setPassword}
+              placeholder="••••••••" placeholderTextColor={Colors.textMuted} secureTextEntry />
           </View>
 
           {!isLogin && (
@@ -122,20 +104,15 @@ export default function LoginScreen() {
                 {agreed && <Text style={styles.checkMark}>✓</Text>}
               </View>
               <Text style={styles.agreeText}>
-                I confirm I am 18+ and understand Eduphoria is for education and harm reduction only
+                I am 18+ and understand Eduphoria is for education and harm reduction only
               </Text>
             </TouchableOpacity>
           )}
 
           {error ? <Text style={styles.error}>{error}</Text> : null}
 
-          <NeonButton
-            label={isLogin ? 'Sign In' : 'Create Account'}
-            onPress={handleSubmit}
-            loading={loading}
-            style={styles.submitBtn}
-            size="lg"
-          />
+          <NeonButton label={isLogin ? 'Sign In' : 'Create Account'} onPress={handleSubmit}
+            loading={loading} size="lg" />
 
           <View style={styles.divider}>
             <View style={styles.dividerLine} />
@@ -143,18 +120,13 @@ export default function LoginScreen() {
             <View style={styles.dividerLine} />
           </View>
 
-          <NeonButton
-            label="Continue as Guest"
-            onPress={() => login('guest@eduphoria.app', 'Guest')}
-            variant="outline"
-            size="lg"
-          />
+          <NeonButton label="Continue as Guest" onPress={() => login('guest@eduphoria.app', 'Guest')}
+            variant="outline" size="lg" />
         </View>
 
-        {/* Disclaimer */}
         <View style={styles.disclaimer}>
           <Text style={styles.disclaimerText}>
-            🛡️ Your data is private and never sold. Eduphoria supports your journey with zero judgement.
+            🛡️ Your data is private and never sold. Zero judgement, always.
           </Text>
         </View>
       </ScrollView>
@@ -164,29 +136,34 @@ export default function LoginScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: Colors.bg },
+  rastaBar: { flexDirection: 'row', height: 4 },
+  rastaStripe: { flex: 1 },
   scroll: { flexGrow: 1, padding: 24 },
-  header: { alignItems: 'center', paddingTop: 48, paddingBottom: 32 },
-  logo: { fontSize: 40, fontWeight: '900', letterSpacing: 1 },
-  tagline: { color: Colors.textSecondary, marginTop: 6, fontSize: 13 },
+  header: { alignItems: 'center', paddingTop: 32, paddingBottom: 24, gap: 0 },
+  logoGreen: { marginTop: 8 },
+  logoYellow: { marginTop: -8 },
+  tagline: { color: Colors.textMuted, marginTop: 6, fontSize: 12, letterSpacing: 1, textTransform: 'uppercase' },
   toggle: {
     flexDirection: 'row',
     backgroundColor: Colors.bgCard,
     borderRadius: BorderRadius.md,
     padding: 4,
-    marginBottom: 28,
+    marginBottom: 24,
+    borderWidth: 1,
+    borderColor: Colors.borderMuted,
   },
-  toggleBtn: {
-    flex: 1,
-    paddingVertical: 10,
-    alignItems: 'center',
-    borderRadius: BorderRadius.sm,
+  toggleBtn: { flex: 1, paddingVertical: 10, alignItems: 'center', borderRadius: BorderRadius.sm },
+  toggleActive: { backgroundColor: Colors.neonGreenDim, borderWidth: 1, borderColor: Colors.borderGreen },
+  toggleText: { color: Colors.textMuted, fontWeight: '700', textTransform: 'uppercase', fontSize: 13, letterSpacing: 0.5 },
+  toggleTextActive: {
+    color: Colors.neonGreen,
+    textShadowColor: Colors.neonGreen,
+    textShadowRadius: 6,
+    textShadowOffset: { width: 0, height: 0 },
   },
-  toggleActive: { backgroundColor: Colors.neonGreenDim },
-  toggleText: { color: Colors.textMuted, fontWeight: '600' },
-  toggleTextActive: { color: Colors.neonGreen },
   form: { gap: 16 },
   field: { gap: 8 },
-  label: { color: Colors.textSecondary, fontSize: 13, fontWeight: '600', letterSpacing: 0.5 },
+  label: { color: Colors.textSecondary, fontSize: 12, fontWeight: '700', letterSpacing: 1, textTransform: 'uppercase' },
   input: {
     backgroundColor: Colors.bgCard,
     borderWidth: 1,
@@ -199,31 +176,25 @@ const styles = StyleSheet.create({
   },
   checkRow: { flexDirection: 'row', gap: 12, alignItems: 'flex-start' },
   checkbox: {
-    width: 22,
-    height: 22,
-    borderRadius: 6,
-    borderWidth: 1.5,
-    borderColor: Colors.borderGreen,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginTop: 2,
-    flexShrink: 0,
+    width: 22, height: 22, borderRadius: 6,
+    borderWidth: 1.5, borderColor: Colors.borderGreen,
+    alignItems: 'center', justifyContent: 'center',
+    marginTop: 2, flexShrink: 0,
   },
   checkboxChecked: { backgroundColor: Colors.neonGreen, borderColor: Colors.neonGreen },
   checkMark: { color: Colors.bg, fontWeight: '900', fontSize: 13 },
   agreeText: { flex: 1, color: Colors.textSecondary, fontSize: 13, lineHeight: 19 },
   error: { color: Colors.danger, fontSize: 13, textAlign: 'center' },
-  submitBtn: {},
   divider: { flexDirection: 'row', alignItems: 'center', gap: 12 },
   dividerLine: { flex: 1, height: 1, backgroundColor: Colors.borderMuted },
   dividerText: { color: Colors.textMuted, fontSize: 13 },
   disclaimer: {
-    marginTop: 28,
-    padding: 16,
+    marginTop: 24,
+    padding: 14,
     backgroundColor: Colors.bgCard,
     borderRadius: BorderRadius.md,
     borderWidth: 1,
     borderColor: Colors.borderMuted,
   },
-  disclaimerText: { color: Colors.textSecondary, fontSize: 12, textAlign: 'center', lineHeight: 18 },
+  disclaimerText: { color: Colors.textMuted, fontSize: 12, textAlign: 'center', lineHeight: 18 },
 });

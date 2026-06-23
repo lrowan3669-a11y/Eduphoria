@@ -8,8 +8,9 @@ import {
   Dimensions,
   StatusBar,
 } from 'react-native';
-import { Colors, BorderRadius, Spacing } from '../utils/theme';
+import { Colors, BorderRadius, NeonShadow } from '../utils/theme';
 import NeonCard from '../components/NeonCard';
+import NeonText from '../components/NeonText';
 import MascotGuide from '../components/MascotGuide';
 import { useApp } from '../context/AppContext';
 import { substances } from '../data/substances';
@@ -22,7 +23,6 @@ interface Props {
 
 export default function HomeScreen({ navigation }: Props) {
   const { user, savedSubstances, journalEntries, prepPlans, activeSession } = useApp();
-
   const savedSubstanceData = substances.filter(s => savedSubstances.includes(s.id));
 
   const greeting = () => {
@@ -33,23 +33,32 @@ export default function HomeScreen({ navigation }: Props) {
   };
 
   const modules = [
-    { title: 'Learn', emoji: '📚', desc: 'Substance database', tab: 'Learn', color: Colors.neonGreen },
-    { title: 'Prepare', emoji: '🛡️', desc: 'Plan responsibly', route: 'Prepare', color: Colors.electricYellow },
-    { title: 'Companion', emoji: '🤝', desc: 'Real-time support', tab: 'Companion', color: Colors.tropicalTeal },
-    { title: 'Reflect', emoji: '📔', desc: 'Journal & insights', tab: 'Reflect', color: '#FF6B9D' },
-    { title: 'Quit', emoji: '🌱', desc: 'Stop use support', route: 'Quit', color: '#9B59B6' },
+    { title: 'Learn',     emoji: '📚', desc: 'Substance database',  tab: 'Learn',      color: Colors.neonGreen },
+    { title: 'Prepare',   emoji: '🛡️',  desc: 'Plan responsibly',    route: 'Prepare',  color: Colors.electricYellow },
+    { title: 'Companion', emoji: '🤝', desc: 'Real-time support',   tab: 'Companion',  color: Colors.tropicalTeal },
+    { title: 'Reflect',   emoji: '📔', desc: 'Journal & insights',  tab: 'Reflect',    color: '#FF6B9D' },
+    { title: 'Quit',      emoji: '🌱', desc: 'Stop use support',    route: 'Quit',     color: Colors.rastaRed },
   ] as { title: string; emoji: string; desc: string; route?: string; tab?: string; color: string }[];
 
   return (
     <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
-      <StatusBar barStyle="light-content" />
+      <StatusBar barStyle="light-content" backgroundColor="#000" />
+
+      {/* Rasta stripe top bar */}
+      <View style={styles.rastaBar}>
+        <View style={[styles.rastaStripe, { backgroundColor: Colors.rastaRed }]} />
+        <View style={[styles.rastaStripe, { backgroundColor: Colors.rastaYellow }]} />
+        <View style={[styles.rastaStripe, { backgroundColor: Colors.rastaGreen }]} />
+      </View>
 
       {/* Header */}
       <View style={styles.header}>
         <View style={styles.headerTop}>
           <View>
-            <Text style={styles.greeting}>{greeting()}, {user?.name} 👋</Text>
-            <Text style={styles.subGreeting}>What would you like to explore today?</Text>
+            <Text style={styles.greeting}>{greeting()}, {user?.name}</Text>
+            <NeonText size={12} color={Colors.textMuted} weight="600" style={{ letterSpacing: 1, textTransform: 'uppercase' }}>
+              What will you explore today?
+            </NeonText>
           </View>
           <TouchableOpacity
             style={styles.avatar}
@@ -59,25 +68,20 @@ export default function HomeScreen({ navigation }: Props) {
           </TouchableOpacity>
         </View>
 
-        {/* Mascot greeting card */}
+        {/* Mascot greeting */}
         <View style={styles.mascotCard}>
-          <MascotGuide
-            size="md"
-            animate
-            showBubble={false}
-            style={styles.mascotImg}
-          />
+          <MascotGuide size="md" animate showBubble={false} />
           <View style={styles.mascotBubble}>
             <Text style={styles.mascotText}>
               {user?.learningStreak && user.learningStreak > 0
-                ? `🔥 ${user.learningStreak} day streak! Keep exploring and stay safe.`
-                : "Welcome! I'm here to guide you safely through your journey."}
+                ? `🔥 ${user.learningStreak} day streak! Stay curious, stay safe.`
+                : "I'm here to guide your journey safely. Education first. Always."}
             </Text>
             <TouchableOpacity
               style={styles.mascotCta}
               onPress={() => navigation.navigate('Learn')}
             >
-              <Text style={styles.mascotCtaText}>Start Learning →</Text>
+              <NeonText size={12} color={Colors.neonGreen}>Start Learning →</NeonText>
             </TouchableOpacity>
           </View>
         </View>
@@ -85,10 +89,7 @@ export default function HomeScreen({ navigation }: Props) {
 
       {/* Active Session Banner */}
       {activeSession && (
-        <TouchableOpacity
-          style={styles.sessionBanner}
-          onPress={() => navigation.navigate('Companion')}
-        >
+        <TouchableOpacity style={styles.sessionBanner} onPress={() => navigation.navigate('Companion')}>
           <Text style={styles.sessionDot}>●</Text>
           <Text style={styles.sessionText}>Active companion session – tap to return</Text>
           <Text style={styles.sessionArrow}>→</Text>
@@ -97,36 +98,35 @@ export default function HomeScreen({ navigation }: Props) {
 
       {/* Stats */}
       <View style={styles.statsRow}>
-        <NeonCard style={styles.statCard} variant="green">
-          <Text style={styles.statEmoji}>🔥</Text>
-          <Text style={styles.statValue}>{user?.learningStreak}</Text>
-          <Text style={styles.statLabel}>Day Streak</Text>
-        </NeonCard>
-        <NeonCard style={styles.statCard} variant="yellow">
-          <Text style={styles.statEmoji}>🧠</Text>
-          <Text style={styles.statValue}>{user?.wellnessScore}%</Text>
-          <Text style={styles.statLabel}>Wellness</Text>
-        </NeonCard>
-        <NeonCard style={styles.statCard} variant="teal">
-          <Text style={styles.statEmoji}>📖</Text>
-          <Text style={styles.statValue}>{user?.totalSessions}</Text>
-          <Text style={styles.statLabel}>Sessions</Text>
-        </NeonCard>
+        {[
+          { emoji: '🔥', value: String(user?.learningStreak ?? 0), label: 'Streak', color: Colors.rastaRed },
+          { emoji: '💚', value: `${user?.wellnessScore}%`, label: 'Wellness', color: Colors.neonGreen },
+          { emoji: '📖', value: String(user?.totalSessions ?? 0), label: 'Sessions', color: Colors.tropicalTeal },
+        ].map((stat, i) => (
+          <View key={i} style={[styles.statCard, { borderColor: stat.color + '50' }]}>
+            <Text style={styles.statEmoji}>{stat.emoji}</Text>
+            <NeonText size={22} color={stat.color}>{stat.value}</NeonText>
+            <Text style={styles.statLabel}>{stat.label}</Text>
+          </View>
+        ))}
       </View>
 
       {/* Core Modules */}
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Core Modules</Text>
+        <NeonText size={13} color={Colors.textMuted} weight="700" style={styles.sectionLabel}>
+          CORE MODULES
+        </NeonText>
         <View style={styles.modulesGrid}>
           {modules.map(mod => (
             <TouchableOpacity
-              key={mod.route}
-              style={[styles.moduleCard, { borderColor: mod.color + '40' }]}
+              key={mod.title}
+              style={[styles.moduleCard, { borderColor: mod.color + '50' }]}
               onPress={() => mod.tab ? navigation.navigate(mod.tab) : navigation.navigate(mod.route as string)}
-              activeOpacity={0.8}
+              activeOpacity={0.75}
             >
+              <View style={[styles.moduleGlow, { backgroundColor: mod.color + '10' }]} />
               <Text style={styles.moduleEmoji}>{mod.emoji}</Text>
-              <Text style={[styles.moduleTitle, { color: mod.color }]}>{mod.title}</Text>
+              <NeonText size={15} color={mod.color}>{mod.title}</NeonText>
               <Text style={styles.moduleDesc}>{mod.desc}</Text>
             </TouchableOpacity>
           ))}
@@ -137,9 +137,9 @@ export default function HomeScreen({ navigation }: Props) {
       {savedSubstanceData.length > 0 && (
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>Saved Substances</Text>
+            <NeonText size={13} color={Colors.textMuted} weight="700" style={styles.sectionLabel}>SAVED SUBSTANCES</NeonText>
             <TouchableOpacity onPress={() => navigation.navigate('Learn')}>
-              <Text style={styles.seeAll}>See all</Text>
+              <NeonText size={13} color={Colors.neonGreen}>See all</NeonText>
             </TouchableOpacity>
           </View>
           <ScrollView horizontal showsHorizontalScrollIndicator={false}>
@@ -160,44 +160,31 @@ export default function HomeScreen({ navigation }: Props) {
       {/* Active Prep Plan */}
       {prepPlans.filter(p => !p.completed).length > 0 && (
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Upcoming Preparation</Text>
-          {prepPlans
-            .filter(p => !p.completed)
-            .slice(0, 1)
-            .map(plan => (
-              <TouchableOpacity
-                key={plan.id}
-                onPress={() => navigation.navigate('Prepare')}
-              >
-                <NeonCard variant="yellow" style={styles.planCard}>
+          <NeonText size={13} color={Colors.textMuted} weight="700" style={styles.sectionLabel}>UPCOMING PREPARATION</NeonText>
+          {prepPlans.filter(p => !p.completed).slice(0, 1).map(plan => {
+            const pct = plan.checklist.filter(c => c.checked).length / plan.checklist.length * 100;
+            return (
+              <TouchableOpacity key={plan.id} onPress={() => navigation.navigate('Prepare')}>
+                <NeonCard variant="yellow" glow style={styles.planCard}>
                   <View style={styles.planHeader}>
                     <Text style={styles.planTitle}>{plan.title}</Text>
                     <Text style={styles.planDate}>📅 {plan.date}</Text>
                   </View>
-                  <Text style={styles.planSubstance}>
+                  <Text style={styles.planSub}>
                     {substances.find(s => s.id === plan.substance)?.emoji}{' '}
                     {substances.find(s => s.id === plan.substance)?.name.split(' ')[0]}
                   </Text>
-                  <View style={styles.planProgress}>
-                    <Text style={styles.planProgressText}>
-                      {plan.checklist.filter(c => c.checked).length}/{plan.checklist.length} steps complete
-                    </Text>
-                    <View style={styles.progressBar}>
-                      <View
-                        style={[
-                          styles.progressFill,
-                          {
-                            width: `${
-                              (plan.checklist.filter(c => c.checked).length / plan.checklist.length) * 100
-                            }%`,
-                          },
-                        ]}
-                      />
-                    </View>
+                  <View style={styles.progressRow}>
+                    <Text style={styles.progressText}>{plan.checklist.filter(c => c.checked).length}/{plan.checklist.length} steps</Text>
+                    <NeonText size={12} color={Colors.electricYellow}>{Math.round(pct)}%</NeonText>
+                  </View>
+                  <View style={styles.progressBar}>
+                    <View style={[styles.progressFill, { width: `${pct}%` }]} />
                   </View>
                 </NeonCard>
               </TouchableOpacity>
-            ))}
+            );
+          })}
         </View>
       )}
 
@@ -205,9 +192,9 @@ export default function HomeScreen({ navigation }: Props) {
       {journalEntries.length > 0 && (
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>Recent Reflections</Text>
+            <NeonText size={13} color={Colors.textMuted} weight="700" style={styles.sectionLabel}>RECENT REFLECTIONS</NeonText>
             <TouchableOpacity onPress={() => navigation.navigate('Reflect')}>
-              <Text style={styles.seeAll}>See all</Text>
+              <NeonText size={13} color={Colors.neonGreen}>See all</NeonText>
             </TouchableOpacity>
           </View>
           {journalEntries.slice(0, 2).map(entry => (
@@ -216,21 +203,13 @@ export default function HomeScreen({ navigation }: Props) {
                 <Text style={styles.journalTitle}>{entry.title}</Text>
                 <Text style={styles.journalDate}>{entry.date}</Text>
               </View>
-              <Text style={styles.journalContent} numberOfLines={2}>
-                {entry.content}
-              </Text>
-              {entry.mood && (
-                <View style={styles.moodRow}>
-                  <Text style={styles.moodLabel}>Mood: </Text>
-                  {'⭐'.repeat(Math.round(entry.mood / 2))}
-                </View>
-              )}
+              <Text style={styles.journalContent} numberOfLines={2}>{entry.content}</Text>
             </NeonCard>
           ))}
         </View>
       )}
 
-      {/* Safety Disclaimer */}
+      {/* Disclaimer */}
       <View style={styles.disclaimer}>
         <Text style={styles.disclaimerText}>
           ⚠️ Eduphoria does not encourage drug use. All information is for educational and harm reduction purposes only.
@@ -242,58 +221,15 @@ export default function HomeScreen({ navigation }: Props) {
   );
 }
 
-const cardW = (width - 16 * 2 - 8) / 3;
-const moduleW = (width - 16 * 2 - 8) / 2;
+const moduleW = (width - 32 - 8) / 2;
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: Colors.bg },
-  header: {
-    paddingHorizontal: 16,
-    paddingTop: 56,
-    paddingBottom: 20,
-    gap: 16,
-  },
-  headerTop: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  mascotCard: {
-    flexDirection: 'row',
-    backgroundColor: Colors.bgCard,
-    borderWidth: 1,
-    borderColor: Colors.borderGreen,
-    borderRadius: 20,
-    padding: 12,
-    alignItems: 'center',
-    gap: 12,
-  },
-  mascotImg: {
-    flexShrink: 0,
-  },
-  mascotBubble: {
-    flex: 1,
-    gap: 8,
-  },
-  mascotText: {
-    color: Colors.textSecondary,
-    fontSize: 13,
-    lineHeight: 19,
-  },
-  mascotCta: {
-    alignSelf: 'flex-start',
-    backgroundColor: Colors.neonGreenDim,
-    borderRadius: 8,
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-  },
-  mascotCtaText: {
-    color: Colors.neonGreen,
-    fontSize: 12,
-    fontWeight: '700',
-  },
-  greeting: { fontSize: 22, fontWeight: '800', color: Colors.textPrimary },
-  subGreeting: { color: Colors.textSecondary, fontSize: 13, marginTop: 4 },
+  rastaBar: { flexDirection: 'row', height: 4 },
+  rastaStripe: { flex: 1 },
+  header: { paddingHorizontal: 16, paddingTop: 48, paddingBottom: 20, gap: 16 },
+  headerTop: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+  greeting: { fontSize: 22, fontWeight: '900', color: Colors.textPrimary, letterSpacing: 0.3 },
   avatar: {
     width: 44,
     height: 44,
@@ -303,14 +239,44 @@ const styles = StyleSheet.create({
     borderColor: Colors.neonGreen,
     alignItems: 'center',
     justifyContent: 'center',
+    ...NeonShadow.green,
   },
-  avatarText: { color: Colors.neonGreen, fontWeight: '800', fontSize: 18 },
+  avatarText: {
+    color: Colors.neonGreen,
+    fontWeight: '900',
+    fontSize: 18,
+    textShadowColor: Colors.neonGreen,
+    textShadowRadius: 8,
+    textShadowOffset: { width: 0, height: 0 },
+  },
+  mascotCard: {
+    flexDirection: 'row',
+    backgroundColor: 'rgba(57,255,20,0.04)',
+    borderWidth: 1,
+    borderColor: Colors.borderGreen,
+    borderRadius: 18,
+    padding: 14,
+    alignItems: 'center',
+    gap: 14,
+    ...NeonShadow.green,
+  },
+  mascotBubble: { flex: 1, gap: 10 },
+  mascotText: { color: Colors.textSecondary, fontSize: 13, lineHeight: 20 },
+  mascotCta: {
+    alignSelf: 'flex-start',
+    backgroundColor: Colors.neonGreenDim,
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderWidth: 1,
+    borderColor: Colors.borderGreen,
+  },
   sessionBanner: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'rgba(0,229,204,0.12)',
+    backgroundColor: 'rgba(0,229,204,0.08)',
     borderWidth: 1,
-    borderColor: Colors.tropicalTeal,
+    borderColor: Colors.borderTeal,
     borderRadius: BorderRadius.md,
     marginHorizontal: 16,
     padding: 12,
@@ -321,14 +287,20 @@ const styles = StyleSheet.create({
   sessionText: { flex: 1, color: Colors.tropicalTeal, fontSize: 13, fontWeight: '600' },
   sessionArrow: { color: Colors.tropicalTeal },
   statsRow: { flexDirection: 'row', gap: 8, paddingHorizontal: 16, marginBottom: 24 },
-  statCard: { flex: 1, alignItems: 'center', gap: 4, padding: 12 },
+  statCard: {
+    flex: 1,
+    backgroundColor: Colors.bgCard,
+    borderWidth: 1,
+    borderRadius: BorderRadius.lg,
+    padding: 14,
+    alignItems: 'center',
+    gap: 4,
+  },
   statEmoji: { fontSize: 22 },
-  statValue: { fontSize: 20, fontWeight: '800', color: Colors.textPrimary },
-  statLabel: { fontSize: 11, color: Colors.textMuted, textAlign: 'center' },
+  statLabel: { fontSize: 11, color: Colors.textMuted, fontWeight: '600' },
   section: { paddingHorizontal: 16, marginBottom: 24 },
   sectionHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 },
-  sectionTitle: { fontSize: 17, fontWeight: '800', color: Colors.textPrimary, marginBottom: 12 },
-  seeAll: { color: Colors.neonGreen, fontSize: 13, fontWeight: '600' },
+  sectionLabel: { letterSpacing: 1.5, marginBottom: 12 },
   modulesGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   moduleCard: {
     width: moduleW,
@@ -337,9 +309,16 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     padding: 16,
     gap: 6,
+    overflow: 'hidden',
+  },
+  moduleGlow: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
   },
   moduleEmoji: { fontSize: 28 },
-  moduleTitle: { fontSize: 16, fontWeight: '800' },
   moduleDesc: { fontSize: 12, color: Colors.textMuted },
   substanceChip: {
     backgroundColor: Colors.bgCard,
@@ -354,29 +333,29 @@ const styles = StyleSheet.create({
   },
   substanceEmoji: { fontSize: 28 },
   substanceName: { color: Colors.textSecondary, fontSize: 12, fontWeight: '600' },
-  planCard: { gap: 10 },
+  planCard: { gap: 8 },
   planHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' },
   planTitle: { flex: 1, fontSize: 15, fontWeight: '700', color: Colors.textPrimary },
   planDate: { color: Colors.textMuted, fontSize: 12 },
-  planSubstance: { color: Colors.electricYellow, fontSize: 13, fontWeight: '600' },
-  planProgress: { gap: 6 },
-  planProgressText: { color: Colors.textSecondary, fontSize: 12 },
-  progressBar: { height: 4, backgroundColor: Colors.bgCardLight, borderRadius: 2 },
-  progressFill: { height: 4, backgroundColor: Colors.electricYellow, borderRadius: 2 },
-  journalCard: { marginBottom: 8, gap: 8 },
+  planSub: { color: Colors.electricYellow, fontSize: 13, fontWeight: '600',
+    textShadowColor: Colors.electricYellow, textShadowRadius: 6, textShadowOffset: { width: 0, height: 0 } },
+  progressRow: { flexDirection: 'row', justifyContent: 'space-between' },
+  progressText: { color: Colors.textMuted, fontSize: 12 },
+  progressBar: { height: 3, backgroundColor: Colors.bgCardLight, borderRadius: 2 },
+  progressFill: { height: 3, backgroundColor: Colors.electricYellow, borderRadius: 2,
+    shadowColor: Colors.electricYellow, shadowRadius: 4, shadowOpacity: 1, shadowOffset: { width: 0, height: 0 } },
+  journalCard: { marginBottom: 8, gap: 6 },
   journalHeader: { flexDirection: 'row', justifyContent: 'space-between' },
   journalTitle: { flex: 1, fontSize: 14, fontWeight: '700', color: Colors.textPrimary },
   journalDate: { color: Colors.textMuted, fontSize: 11 },
   journalContent: { color: Colors.textSecondary, fontSize: 13, lineHeight: 19 },
-  moodRow: { flexDirection: 'row', alignItems: 'center' },
-  moodLabel: { color: Colors.textMuted, fontSize: 12 },
   disclaimer: {
     marginHorizontal: 16,
     padding: 12,
-    backgroundColor: 'rgba(255,184,0,0.08)',
+    backgroundColor: 'rgba(255,230,0,0.04)',
     borderRadius: BorderRadius.md,
     borderWidth: 1,
-    borderColor: 'rgba(255,184,0,0.2)',
+    borderColor: 'rgba(255,230,0,0.2)',
   },
-  disclaimerText: { color: Colors.warning, fontSize: 11, textAlign: 'center', lineHeight: 16 },
+  disclaimerText: { color: Colors.textMuted, fontSize: 11, textAlign: 'center', lineHeight: 16 },
 });

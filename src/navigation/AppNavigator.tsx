@@ -3,10 +3,9 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Text, View, StyleSheet } from 'react-native';
-import { Colors } from '../utils/theme';
+import { Colors, NeonShadow } from '../utils/theme';
 import { useApp } from '../context/AppContext';
 
-// Screens
 import OnboardingScreen from '../screens/auth/OnboardingScreen';
 import LoginScreen from '../screens/auth/LoginScreen';
 import HomeScreen from '../screens/HomeScreen';
@@ -24,22 +23,34 @@ import PremiumScreen from '../screens/profile/PremiumScreen';
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 
-function TabIcon({ emoji, label, focused }: { emoji: string; label: string; focused: boolean }) {
+const TABS = [
+  { name: 'Home',      emoji: '🏠', label: 'Home',      color: Colors.neonGreen },
+  { name: 'Learn',     emoji: '📚', label: 'Learn',     color: Colors.neonGreen },
+  { name: 'Companion', emoji: '🤝', label: 'Guide',     color: Colors.tropicalTeal },
+  { name: 'Reflect',   emoji: '📔', label: 'Reflect',   color: '#FF6B9D' },
+  { name: 'Community', emoji: '🌐', label: 'Community', color: Colors.electricYellow },
+];
+
+const SCREENS: Record<string, React.ComponentType<any>> = {
+  Home: HomeScreen,
+  Learn: LearnScreen,
+  Companion: CompanionScreen,
+  Reflect: ReflectScreen,
+  Community: CommunityScreen,
+};
+
+function TabIcon({ emoji, label, focused, color }: { emoji: string; label: string; focused: boolean; color: string }) {
   return (
-    <View style={[tabStyles.iconWrap, focused && tabStyles.iconWrapActive]}>
-      <Text style={tabStyles.iconEmoji}>{emoji}</Text>
-      <Text style={[tabStyles.iconLabel, focused && tabStyles.iconLabelActive]}>{label}</Text>
+    <View style={[styles.iconWrap, focused && { borderTopColor: color }]}>
+      <Text style={[styles.iconEmoji, focused && { textShadowColor: color, textShadowRadius: 8, textShadowOffset: { width: 0, height: 0 } }]}>
+        {emoji}
+      </Text>
+      <Text style={[styles.iconLabel, focused && { color, textShadowColor: color, textShadowRadius: 6, textShadowOffset: { width: 0, height: 0 } }]}>
+        {label}
+      </Text>
     </View>
   );
 }
-
-const tabStyles = StyleSheet.create({
-  iconWrap: { alignItems: 'center', gap: 2, paddingTop: 6 },
-  iconWrapActive: {},
-  iconEmoji: { fontSize: 20 },
-  iconLabel: { fontSize: 10, color: Colors.textMuted, fontWeight: '600' },
-  iconLabelActive: { color: Colors.neonGreen },
-});
 
 function MainTabs() {
   return (
@@ -47,40 +58,28 @@ function MainTabs() {
       screenOptions={{
         headerShown: false,
         tabBarStyle: {
-          backgroundColor: Colors.bgCard,
-          borderTopColor: Colors.borderMuted,
+          backgroundColor: '#000000',
+          borderTopColor: 'rgba(57,255,20,0.2)',
           borderTopWidth: 1,
-          height: 70,
+          height: 72,
           paddingBottom: 8,
+          paddingTop: 4,
         },
         tabBarShowLabel: false,
       }}
     >
-      <Tab.Screen
-        name="Home"
-        component={HomeScreen}
-        options={{ tabBarIcon: ({ focused }) => <TabIcon emoji="🏠" label="Home" focused={focused} /> }}
-      />
-      <Tab.Screen
-        name="Learn"
-        component={LearnScreen}
-        options={{ tabBarIcon: ({ focused }) => <TabIcon emoji="📚" label="Learn" focused={focused} /> }}
-      />
-      <Tab.Screen
-        name="Companion"
-        component={CompanionScreen}
-        options={{ tabBarIcon: ({ focused }) => <TabIcon emoji="🤝" label="Guide" focused={focused} /> }}
-      />
-      <Tab.Screen
-        name="Reflect"
-        component={ReflectScreen}
-        options={{ tabBarIcon: ({ focused }) => <TabIcon emoji="📔" label="Reflect" focused={focused} /> }}
-      />
-      <Tab.Screen
-        name="Community"
-        component={CommunityScreen}
-        options={{ tabBarIcon: ({ focused }) => <TabIcon emoji="🌐" label="Community" focused={focused} /> }}
-      />
+      {TABS.map(tab => (
+        <Tab.Screen
+          key={tab.name}
+          name={tab.name}
+          component={SCREENS[tab.name]}
+          options={{
+            tabBarIcon: ({ focused }) => (
+              <TabIcon emoji={tab.emoji} label={tab.label} focused={focused} color={tab.color} />
+            ),
+          }}
+        />
+      ))}
     </Tab.Navigator>
   );
 }
@@ -89,7 +88,25 @@ export default function AppNavigator() {
   const { isAuthenticated, isOnboarded } = useApp();
 
   return (
-    <NavigationContainer>
+    <NavigationContainer
+      theme={{
+        dark: true,
+        colors: {
+          primary: Colors.neonGreen,
+          background: '#000000',
+          card: '#000000',
+          text: Colors.textPrimary,
+          border: 'rgba(57,255,20,0.2)',
+          notification: Colors.rastaRed,
+        },
+        fonts: {
+          regular: { fontFamily: 'System', fontWeight: '400' },
+          medium: { fontFamily: 'System', fontWeight: '500' },
+          bold: { fontFamily: 'System', fontWeight: '700' },
+          heavy: { fontFamily: 'System', fontWeight: '900' },
+        },
+      }}
+    >
       <Stack.Navigator screenOptions={{ headerShown: false }}>
         {!isOnboarded ? (
           <Stack.Screen name="Onboarding" component={OnboardingScreen} />
@@ -110,3 +127,16 @@ export default function AppNavigator() {
     </NavigationContainer>
   );
 }
+
+const styles = StyleSheet.create({
+  iconWrap: {
+    alignItems: 'center',
+    gap: 3,
+    paddingTop: 6,
+    borderTopWidth: 2,
+    borderTopColor: 'transparent',
+    width: 64,
+  },
+  iconEmoji: { fontSize: 20 },
+  iconLabel: { fontSize: 10, color: Colors.textMuted, fontWeight: '700', letterSpacing: 0.3 },
+});
