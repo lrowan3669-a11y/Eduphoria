@@ -10,7 +10,23 @@ interface Props {
   animate?: boolean;
 }
 
-const logoSource = require('../../assets/logo.png');
+// Safely require the logo – falls back to null if file doesn't exist yet
+let logoSource: any = null;
+try {
+  logoSource = require('../../assets/logo.png');
+} catch {}
+
+function LogoFallback({ size }: { size: number }) {
+  return (
+    <View style={[styles.fallback, { width: size, height: size }]}>
+      <Text style={{ fontSize: size * 0.5 }}>🧘</Text>
+      <Text style={[styles.fallbackLabel, { fontSize: size * 0.12 }]}>
+        <Text style={{ color: Colors.neonGreen }}>Edu</Text>
+        <Text style={{ color: Colors.electricYellow }}>phoria</Text>
+      </Text>
+    </View>
+  );
+}
 
 export default function MascotGuide({
   message,
@@ -29,9 +45,10 @@ export default function MascotGuide({
         Animated.timing(floatAnim, { toValue: 0, duration: 1800, useNativeDriver: true }),
       ])
     ).start();
+    return () => floatAnim.stopAnimation();
   }, [animate]);
 
-  const imgSize = size === 'sm' ? 64 : size === 'lg' ? 160 : 100;
+  const imgSize = size === 'sm' ? 48 : size === 'lg' ? 160 : 90;
 
   return (
     <View style={[styles.container, style]}>
@@ -42,11 +59,15 @@ export default function MascotGuide({
         </View>
       )}
       <Animated.View style={{ transform: [{ translateY: floatAnim }] }}>
-        <Image
-          source={logoSource}
-          style={{ width: imgSize, height: imgSize }}
-          resizeMode="contain"
-        />
+        {logoSource ? (
+          <Image
+            source={logoSource}
+            style={{ width: imgSize, height: imgSize }}
+            resizeMode="contain"
+          />
+        ) : (
+          <LogoFallback size={imgSize} />
+        )}
       </Animated.View>
     </View>
   );
@@ -65,7 +86,6 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     maxWidth: 260,
     marginBottom: 12,
-    position: 'relative',
   },
   bubbleText: {
     color: Colors.textPrimary,
@@ -86,5 +106,17 @@ const styles = StyleSheet.create({
     borderLeftColor: 'transparent',
     borderRightColor: 'transparent',
     borderTopColor: Colors.borderGreen,
+  },
+  fallback: {
+    backgroundColor: Colors.bgCard,
+    borderWidth: 1,
+    borderColor: Colors.borderGreen,
+    borderRadius: 999,
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 2,
+  },
+  fallbackLabel: {
+    fontWeight: '800',
   },
 });

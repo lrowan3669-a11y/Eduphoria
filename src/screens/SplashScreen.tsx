@@ -10,7 +10,12 @@ import {
 } from 'react-native';
 import { Colors } from '../utils/theme';
 
-const { width, height } = Dimensions.get('window');
+const { width } = Dimensions.get('window');
+
+let logoSource: any = null;
+try {
+  logoSource = require('../../assets/logo.png');
+} catch {}
 
 interface Props {
   onFinish: () => void;
@@ -24,15 +29,13 @@ export default function SplashScreen({ onFinish }: Props) {
   const floatAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
-    // Float loop
     Animated.loop(
       Animated.sequence([
-        Animated.timing(floatAnim, { toValue: -10, duration: 1600, useNativeDriver: true }),
+        Animated.timing(floatAnim, { toValue: -12, duration: 1600, useNativeDriver: true }),
         Animated.timing(floatAnim, { toValue: 0, duration: 1600, useNativeDriver: true }),
       ])
     ).start();
 
-    // Entrance + exit
     Animated.sequence([
       Animated.parallel([
         Animated.timing(fadeAnim, { toValue: 1, duration: 900, useNativeDriver: true }),
@@ -54,20 +57,34 @@ export default function SplashScreen({ onFinish }: Props) {
       <Animated.View style={[styles.ring, styles.ring2, { opacity: glowAnim }]} />
       <Animated.View style={[styles.ring, styles.ring3, { opacity: glowAnim }]} />
 
-      <Animated.View style={{ opacity: fadeAnim, transform: [{ scale: scaleAnim }], alignItems: 'center' }}>
-        {/* Logo image */}
+      <Animated.View style={[styles.content, { opacity: fadeAnim, transform: [{ scale: scaleAnim }] }]}>
+
+        {/* Logo or fallback */}
         <Animated.View style={{ transform: [{ translateY: floatAnim }] }}>
-          <Image
-            source={require('../../assets/logo.png')}
-            style={styles.logo}
-            resizeMode="contain"
-          />
+          {logoSource ? (
+            <Image source={logoSource} style={styles.logoImg} resizeMode="contain" />
+          ) : (
+            <View style={styles.logoFallback}>
+              <Text style={styles.logoEmoji}>🧘</Text>
+              <View style={styles.cloudRow}>
+                <Text style={styles.cloudGreen}>☁️</Text>
+                <Text style={styles.cloudYellow}>☁️</Text>
+              </View>
+            </View>
+          )}
         </Animated.View>
 
-        {/* Tagline */}
-        <Animated.Text style={[styles.tagline, { opacity: taglineAnim }]}>
-          A Modern Companion for Education & Harm Reduction
-        </Animated.Text>
+        {/* Title */}
+        <Animated.View style={{ opacity: glowAnim, alignItems: 'center' }}>
+          <Text style={styles.title}>
+            <Text style={styles.titleGreen}>Edu</Text>
+            <Text style={styles.titleYellow}>phoria</Text>
+          </Text>
+          <Animated.Text style={[styles.tagline, { opacity: taglineAnim }]}>
+            A Modern Companion for Education & Harm Reduction
+          </Animated.Text>
+        </Animated.View>
+
       </Animated.View>
 
       <Animated.View style={[styles.bottom, { opacity: glowAnim }]}>
@@ -91,33 +108,51 @@ const styles = StyleSheet.create({
     borderRadius: 9999,
     borderWidth: 1,
   },
-  ring1: {
-    width: 300,
-    height: 300,
-    borderColor: 'rgba(57,255,20,0.12)',
+  ring1: { width: 300, height: 300, borderColor: 'rgba(57,255,20,0.12)' },
+  ring2: { width: 430, height: 430, borderColor: 'rgba(57,255,20,0.07)' },
+  ring3: { width: 560, height: 560, borderColor: 'rgba(57,255,20,0.03)' },
+  content: {
+    alignItems: 'center',
+    gap: 16,
   },
-  ring2: {
-    width: 420,
-    height: 420,
-    borderColor: 'rgba(57,255,20,0.07)',
+  logoImg: {
+    width: 260,
+    height: 240,
   },
-  ring3: {
-    width: 540,
-    height: 540,
-    borderColor: 'rgba(57,255,20,0.03)',
+  logoFallback: {
+    alignItems: 'center',
+    marginBottom: 8,
   },
-  logo: {
-    width: 280,
-    height: 260,
-    marginBottom: 16,
+  logoEmoji: {
+    fontSize: 72,
   },
+  cloudRow: {
+    flexDirection: 'row',
+    marginTop: -16,
+  },
+  cloudGreen: {
+    fontSize: 48,
+    tintColor: Colors.neonGreen,
+  },
+  cloudYellow: {
+    fontSize: 48,
+    marginLeft: -8,
+  },
+  title: {
+    fontSize: 52,
+    fontWeight: '900',
+    letterSpacing: 2,
+  },
+  titleGreen: { color: Colors.neonGreen },
+  titleYellow: { color: Colors.electricYellow },
   tagline: {
     color: Colors.textSecondary,
     fontSize: 13,
     textAlign: 'center',
     paddingHorizontal: 48,
-    letterSpacing: 0.5,
+    letterSpacing: 0.4,
     lineHeight: 20,
+    marginTop: 8,
   },
   bottom: {
     position: 'absolute',
