@@ -13,6 +13,7 @@ import {
 } from 'react-native';
 import { Colors, BorderRadius } from '../../utils/theme';
 import NeonCard from '../../components/NeonCard';
+import MascotGuide from '../../components/MascotGuide';
 import NeonButton from '../../components/NeonButton';
 import { useApp } from '../../context/AppContext';
 
@@ -260,7 +261,10 @@ export default function CompanionScreen({ navigation }: Props) {
                 ]}
               >
                 {msg.role === 'assistant' && (
-                  <Text style={styles.aiLabel}>🤝 Companion</Text>
+                  <View style={styles.aiHeader}>
+                    <MascotGuide size="sm" showBubble={false} animate={false} />
+                    <Text style={styles.aiLabel}>Eduphoria Guide</Text>
+                  </View>
                 )}
                 <Text style={[styles.bubbleText, msg.role === 'user' && styles.userText]}>
                   {msg.content}
@@ -441,6 +445,7 @@ const styles = StyleSheet.create({
     borderColor: Colors.borderGreen,
     alignSelf: 'flex-end',
   },
+  aiHeader: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 4 },
   aiLabel: { color: Colors.tropicalTeal, fontSize: 11, fontWeight: '700' },
   bubbleText: { color: Colors.textSecondary, fontSize: 14, lineHeight: 21 },
   userText: { color: Colors.textPrimary },

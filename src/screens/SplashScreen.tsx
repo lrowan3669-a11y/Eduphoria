@@ -6,6 +6,7 @@ import {
   Animated,
   Dimensions,
   StatusBar,
+  Image,
 } from 'react-native';
 import { Colors } from '../utils/theme';
 
@@ -17,17 +18,29 @@ interface Props {
 
 export default function SplashScreen({ onFinish }: Props) {
   const fadeAnim = useRef(new Animated.Value(0)).current;
-  const scaleAnim = useRef(new Animated.Value(0.7)).current;
+  const scaleAnim = useRef(new Animated.Value(0.8)).current;
   const glowAnim = useRef(new Animated.Value(0)).current;
+  const taglineAnim = useRef(new Animated.Value(0)).current;
+  const floatAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
+    // Float loop
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(floatAnim, { toValue: -10, duration: 1600, useNativeDriver: true }),
+        Animated.timing(floatAnim, { toValue: 0, duration: 1600, useNativeDriver: true }),
+      ])
+    ).start();
+
+    // Entrance + exit
     Animated.sequence([
       Animated.parallel([
-        Animated.timing(fadeAnim, { toValue: 1, duration: 800, useNativeDriver: true }),
-        Animated.spring(scaleAnim, { toValue: 1, friction: 5, useNativeDriver: true }),
+        Animated.timing(fadeAnim, { toValue: 1, duration: 900, useNativeDriver: true }),
+        Animated.spring(scaleAnim, { toValue: 1, friction: 6, useNativeDriver: true }),
       ]),
-      Animated.timing(glowAnim, { toValue: 1, duration: 600, useNativeDriver: true }),
-      Animated.delay(1200),
+      Animated.timing(glowAnim, { toValue: 1, duration: 500, useNativeDriver: true }),
+      Animated.timing(taglineAnim, { toValue: 1, duration: 600, useNativeDriver: true }),
+      Animated.delay(1600),
       Animated.timing(fadeAnim, { toValue: 0, duration: 600, useNativeDriver: true }),
     ]).start(() => onFinish());
   }, []);
@@ -36,31 +49,31 @@ export default function SplashScreen({ onFinish }: Props) {
     <View style={styles.container}>
       <StatusBar barStyle="light-content" backgroundColor={Colors.bg} />
 
-      {/* Background rings */}
+      {/* Glow rings */}
       <Animated.View style={[styles.ring, styles.ring1, { opacity: glowAnim }]} />
       <Animated.View style={[styles.ring, styles.ring2, { opacity: glowAnim }]} />
+      <Animated.View style={[styles.ring, styles.ring3, { opacity: glowAnim }]} />
 
       <Animated.View style={{ opacity: fadeAnim, transform: [{ scale: scaleAnim }], alignItems: 'center' }}>
-        {/* Logo cloud emoji placeholder */}
-        <View style={styles.logoContainer}>
-          <Text style={styles.logoEmoji}>☁️</Text>
-          <View style={styles.characterContainer}>
-            <Text style={styles.characterEmoji}>🧘</Text>
-          </View>
-        </View>
+        {/* Logo image */}
+        <Animated.View style={{ transform: [{ translateY: floatAnim }] }}>
+          <Image
+            source={require('../../assets/logo.png')}
+            style={styles.logo}
+            resizeMode="contain"
+          />
+        </Animated.View>
 
-        <Animated.Text style={[styles.title, { opacity: glowAnim }]}>
-          <Text style={styles.titleGreen}>Edu</Text>
-          <Text style={styles.titleYellow}>phoria</Text>
-        </Animated.Text>
-
-        <Animated.Text style={[styles.tagline, { opacity: glowAnim }]}>
+        {/* Tagline */}
+        <Animated.Text style={[styles.tagline, { opacity: taglineAnim }]}>
           A Modern Companion for Education & Harm Reduction
         </Animated.Text>
       </Animated.View>
 
-      <Animated.View style={[styles.bottomBar, { opacity: glowAnim }]}>
+      <Animated.View style={[styles.bottom, { opacity: glowAnim }]}>
         <View style={styles.dot} />
+        <View style={[styles.dot, { opacity: 0.5 }]} />
+        <View style={[styles.dot, { opacity: 0.25 }]} />
       </Animated.View>
     </View>
   );
@@ -79,57 +92,39 @@ const styles = StyleSheet.create({
     borderWidth: 1,
   },
   ring1: {
-    width: 280,
-    height: 280,
-    borderColor: 'rgba(57,255,20,0.1)',
+    width: 300,
+    height: 300,
+    borderColor: 'rgba(57,255,20,0.12)',
   },
   ring2: {
-    width: 380,
-    height: 380,
-    borderColor: 'rgba(57,255,20,0.05)',
+    width: 420,
+    height: 420,
+    borderColor: 'rgba(57,255,20,0.07)',
   },
-  logoContainer: {
-    width: 140,
-    height: 120,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 24,
+  ring3: {
+    width: 540,
+    height: 540,
+    borderColor: 'rgba(57,255,20,0.03)',
   },
-  logoEmoji: {
-    fontSize: 80,
-  },
-  characterContainer: {
-    position: 'absolute',
-    top: -10,
-  },
-  characterEmoji: {
-    fontSize: 40,
-  },
-  title: {
-    fontSize: 48,
-    fontWeight: '900',
-    letterSpacing: 2,
-  },
-  titleGreen: {
-    color: Colors.neonGreen,
-  },
-  titleYellow: {
-    color: Colors.electricYellow,
+  logo: {
+    width: 280,
+    height: 260,
+    marginBottom: 16,
   },
   tagline: {
     color: Colors.textSecondary,
     fontSize: 13,
     textAlign: 'center',
-    marginTop: 12,
-    paddingHorizontal: 40,
+    paddingHorizontal: 48,
     letterSpacing: 0.5,
+    lineHeight: 20,
   },
-  bottomBar: {
+  bottom: {
     position: 'absolute',
-    bottom: 60,
+    bottom: 56,
     flexDirection: 'row',
-    alignItems: 'center',
     gap: 8,
+    alignItems: 'center',
   },
   dot: {
     width: 6,

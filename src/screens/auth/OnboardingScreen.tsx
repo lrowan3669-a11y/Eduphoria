@@ -5,61 +5,62 @@ import {
   StyleSheet,
   Dimensions,
   FlatList,
-  Animated,
   TouchableOpacity,
   StatusBar,
 } from 'react-native';
-import { Colors, Spacing, BorderRadius } from '../../utils/theme';
+
+import { Colors, BorderRadius } from '../../utils/theme';
 import NeonButton from '../../components/NeonButton';
+import MascotGuide from '../../components/MascotGuide';
 import { useApp } from '../../context/AppContext';
 
-const { width } = Dimensions.get('window');
+const { width, height } = Dimensions.get('window');
 
 const slides = [
   {
     id: '1',
-    emoji: '🎓',
+    color: Colors.neonGreen,
+    mascotMessage: "Hey! I'm your Eduphoria guide. I'll help you learn, stay safe, and make informed decisions. 🌿",
     title: 'Education First',
     subtitle: 'Science-based information',
     description:
       'Access a comprehensive database of substances with evidence-based information about effects, risks, interactions and harm reduction.',
-    color: Colors.neonGreen,
   },
   {
     id: '2',
-    emoji: '🛡️',
+    color: Colors.electricYellow,
+    mascotMessage: "Your safety is everything. I'll walk you through preparation so every experience is as safe as possible. 🛡️",
     title: 'Harm Reduction Always',
     subtitle: 'Your safety matters',
     description:
       'Prepare responsibly with personalised safety checklists, intention setting tools, and emergency information at your fingertips.',
-    color: Colors.electricYellow,
   },
   {
     id: '3',
-    emoji: '🤝',
+    color: Colors.tropicalTeal,
+    mascotMessage: "If things get intense, I'm right here. Breathing exercises, grounding, calm guidance — whenever you need it. 🤝",
     title: 'AI Companion Support',
     subtitle: 'Never face it alone',
     description:
       'Our AI guide provides grounding exercises, breathing techniques, and reassurance whenever you need it – completely judgement free.',
-    color: Colors.tropicalTeal,
   },
   {
     id: '4',
-    emoji: '📔',
+    color: '#FF6B9D',
+    mascotMessage: "Every experience holds wisdom. Let's capture your insights and track your personal growth together. 📔",
     title: 'Reflect & Grow',
     subtitle: 'Learn from every experience',
     description:
       'Build your personal insight library through journaling, mood tracking, and pattern recognition to support your personal growth.',
-    color: '#FF6B9D',
   },
   {
     id: '5',
-    emoji: '⚠️',
+    color: Colors.warning,
+    mascotMessage: "Before we begin — this app is for education and harm reduction only. I never encourage unsafe behaviour. Promise. ✅",
     title: 'Important Notice',
     subtitle: 'Please read carefully',
     description:
       'Eduphoria does not encourage drug use. All information is for educational and harm reduction purposes only.\n\nBy continuing, you confirm you understand this app does not promote illegal activity.',
-    color: Colors.warning,
   },
 ];
 
@@ -77,9 +78,14 @@ export default function OnboardingScreen() {
     }
   };
 
+  const slide = slides[currentIndex];
+
   return (
     <View style={styles.container}>
       <StatusBar barStyle="light-content" />
+
+      {/* Neon glow bg accent */}
+      <View style={[styles.glowAccent, { backgroundColor: slide.color + '15' }]} />
 
       <FlatList
         ref={flatListRef}
@@ -91,12 +97,19 @@ export default function OnboardingScreen() {
         keyExtractor={item => item.id}
         renderItem={({ item }) => (
           <View style={styles.slide}>
-            <View style={[styles.emojiContainer, { shadowColor: item.color }]}>
-              <Text style={styles.emoji}>{item.emoji}</Text>
+            {/* Mascot with speech bubble */}
+            <MascotGuide
+              message={item.mascotMessage}
+              size="lg"
+              style={styles.mascot}
+              animate={currentIndex === slides.indexOf(item)}
+            />
+
+            <View style={[styles.textCard, { borderColor: item.color + '40' }]}>
+              <Text style={[styles.slideSubtitle, { color: item.color }]}>{item.subtitle}</Text>
+              <Text style={styles.slideTitle}>{item.title}</Text>
+              <Text style={styles.slideDesc}>{item.description}</Text>
             </View>
-            <Text style={[styles.subtitle, { color: item.color }]}>{item.subtitle}</Text>
-            <Text style={styles.title}>{item.title}</Text>
-            <Text style={styles.description}>{item.description}</Text>
           </View>
         )}
       />
@@ -109,7 +122,7 @@ export default function OnboardingScreen() {
             style={[
               styles.dot,
               i === currentIndex
-                ? { backgroundColor: Colors.neonGreen, width: 24 }
+                ? { backgroundColor: slide.color, width: 24 }
                 : { backgroundColor: Colors.textMuted, width: 8 },
             ]}
           />
@@ -118,7 +131,7 @@ export default function OnboardingScreen() {
 
       <View style={styles.actions}>
         <NeonButton
-          label={currentIndex === slides.length - 1 ? 'I Understand – Get Started' : 'Next'}
+          label={currentIndex === slides.length - 1 ? "I Understand – Let's Begin" : 'Next'}
           onPress={goNext}
           variant={currentIndex === slides.length - 1 ? 'yellow' : 'primary'}
           size="lg"
@@ -126,7 +139,7 @@ export default function OnboardingScreen() {
         />
         {currentIndex < slides.length - 1 && (
           <TouchableOpacity onPress={completeOnboarding} style={styles.skip}>
-            <Text style={styles.skipText}>Skip</Text>
+            <Text style={styles.skipText}>Skip intro</Text>
           </TouchableOpacity>
         )}
       </View>
@@ -139,55 +152,55 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: Colors.bg,
   },
+  glowAccent: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    height: height * 0.55,
+    borderBottomLeftRadius: 60,
+    borderBottomRightRadius: 60,
+  },
   slide: {
     width,
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingHorizontal: 40,
-    paddingTop: 60,
+    paddingHorizontal: 24,
+    paddingTop: 48,
   },
-  emojiContainer: {
-    width: 120,
-    height: 120,
-    borderRadius: 60,
+  mascot: {
+    marginBottom: 24,
+  },
+  textCard: {
     backgroundColor: Colors.bgCard,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 40,
-    shadowOpacity: 0.5,
-    shadowRadius: 30,
-    shadowOffset: { width: 0, height: 0 },
-    elevation: 10,
+    borderWidth: 1,
+    borderRadius: 20,
+    padding: 24,
+    width: '100%',
+    gap: 10,
   },
-  emoji: {
-    fontSize: 56,
-  },
-  subtitle: {
-    fontSize: 12,
+  slideSubtitle: {
+    fontSize: 11,
     fontWeight: '700',
     letterSpacing: 2,
     textTransform: 'uppercase',
-    marginBottom: 12,
   },
-  title: {
-    fontSize: 32,
+  slideTitle: {
+    fontSize: 26,
     fontWeight: '900',
     color: Colors.textPrimary,
-    textAlign: 'center',
-    marginBottom: 20,
   },
-  description: {
-    fontSize: 16,
+  slideDesc: {
+    fontSize: 14,
     color: Colors.textSecondary,
-    textAlign: 'center',
-    lineHeight: 24,
+    lineHeight: 22,
   },
   dots: {
     flexDirection: 'row',
     justifyContent: 'center',
     gap: 6,
-    paddingVertical: 24,
+    paddingVertical: 20,
   },
   dot: {
     height: 8,

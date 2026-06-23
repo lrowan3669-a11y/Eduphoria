@@ -12,6 +12,7 @@ import {
 import { Colors, BorderRadius } from '../../utils/theme';
 import NeonCard from '../../components/NeonCard';
 import NeonButton from '../../components/NeonButton';
+import MascotGuide from '../../components/MascotGuide';
 import { useApp } from '../../context/AppContext';
 import { substances } from '../../data/substances';
 
@@ -80,6 +81,11 @@ export default function PrepareScreen({ navigation }: Props) {
         <View style={styles.header}>
           <Text style={styles.title}>🛡️ Prepare</Text>
           <Text style={styles.subtitle}>Plan your experience responsibly</Text>
+          <MascotGuide
+            message="Preparation is everything. Let me help you build a plan that keeps you safe. 🌿"
+            size="md"
+            style={{ marginTop: 12 }}
+          />
         </View>
 
         {/* Safety Tips */}

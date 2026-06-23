@@ -10,6 +10,7 @@ import {
 import { Colors, BorderRadius } from '../../utils/theme';
 import NeonCard from '../../components/NeonCard';
 import NeonButton from '../../components/NeonButton';
+import MascotGuide from '../../components/MascotGuide';
 
 interface Props {
   navigation: any;
@@ -85,6 +86,11 @@ export default function QuitScreen({ navigation }: Props) {
         <View style={styles.header}>
           <Text style={styles.title}>🌱 Quit Support</Text>
           <Text style={styles.subtitle}>You don't have to face this alone</Text>
+          <MascotGuide
+            message="I'm proud of you for being here. Every step forward matters, no matter how small. 💚"
+            size="md"
+            style={{ marginTop: 12 }}
+          />
         </View>
 
         {/* Mission Statement */}

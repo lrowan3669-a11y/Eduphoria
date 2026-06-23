@@ -10,6 +10,7 @@ import {
 } from 'react-native';
 import { Colors, BorderRadius, Spacing } from '../utils/theme';
 import NeonCard from '../components/NeonCard';
+import MascotGuide from '../components/MascotGuide';
 import { useApp } from '../context/AppContext';
 import { substances } from '../data/substances';
 
@@ -45,16 +46,41 @@ export default function HomeScreen({ navigation }: Props) {
 
       {/* Header */}
       <View style={styles.header}>
-        <View>
-          <Text style={styles.greeting}>{greeting()}, {user?.name} 👋</Text>
-          <Text style={styles.subGreeting}>What would you like to explore today?</Text>
+        <View style={styles.headerTop}>
+          <View>
+            <Text style={styles.greeting}>{greeting()}, {user?.name} 👋</Text>
+            <Text style={styles.subGreeting}>What would you like to explore today?</Text>
+          </View>
+          <TouchableOpacity
+            style={styles.avatar}
+            onPress={() => navigation.navigate('Profile')}
+          >
+            <Text style={styles.avatarText}>{user?.name?.[0] || 'U'}</Text>
+          </TouchableOpacity>
         </View>
-        <TouchableOpacity
-          style={styles.avatar}
-          onPress={() => navigation.navigate('Profile')}
-        >
-          <Text style={styles.avatarText}>{user?.name?.[0] || 'U'}</Text>
-        </TouchableOpacity>
+
+        {/* Mascot greeting card */}
+        <View style={styles.mascotCard}>
+          <MascotGuide
+            size="md"
+            animate
+            showBubble={false}
+            style={styles.mascotImg}
+          />
+          <View style={styles.mascotBubble}>
+            <Text style={styles.mascotText}>
+              {user?.learningStreak && user.learningStreak > 0
+                ? `🔥 ${user.learningStreak} day streak! Keep exploring and stay safe.`
+                : "Welcome! I'm here to guide you safely through your journey."}
+            </Text>
+            <TouchableOpacity
+              style={styles.mascotCta}
+              onPress={() => navigation.navigate('Learn')}
+            >
+              <Text style={styles.mascotCtaText}>Start Learning →</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
       </View>
 
       {/* Active Session Banner */}
@@ -222,12 +248,49 @@ const moduleW = (width - 16 * 2 - 8) / 2;
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: Colors.bg },
   header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
     paddingHorizontal: 16,
     paddingTop: 56,
     paddingBottom: 20,
+    gap: 16,
+  },
+  headerTop: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  mascotCard: {
+    flexDirection: 'row',
+    backgroundColor: Colors.bgCard,
+    borderWidth: 1,
+    borderColor: Colors.borderGreen,
+    borderRadius: 20,
+    padding: 12,
+    alignItems: 'center',
+    gap: 12,
+  },
+  mascotImg: {
+    flexShrink: 0,
+  },
+  mascotBubble: {
+    flex: 1,
+    gap: 8,
+  },
+  mascotText: {
+    color: Colors.textSecondary,
+    fontSize: 13,
+    lineHeight: 19,
+  },
+  mascotCta: {
+    alignSelf: 'flex-start',
+    backgroundColor: Colors.neonGreenDim,
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+  },
+  mascotCtaText: {
+    color: Colors.neonGreen,
+    fontSize: 12,
+    fontWeight: '700',
   },
   greeting: { fontSize: 22, fontWeight: '800', color: Colors.textPrimary },
   subGreeting: { color: Colors.textSecondary, fontSize: 13, marginTop: 4 },
